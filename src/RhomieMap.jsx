@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabaseClient";
-import { InviteSheet, useRealtimeLocation, LocationToggle } from "./RoamieInvite";
-import RoamieSettings, { Avatar } from "./RoamieSettings";
-import { CheckInButton, CheckInSheet, useCheckIn, timeAgo } from "./RoamieCheckIn";
-import { SOSButton, SOSSheet, IncomingSOSModal, useOwnSOS, useCrewSOS } from "./RoamieSOSAlert";
+import { InviteSheet, useRealtimeLocation, LocationToggle } from "./RhomieInvite";
+import RhomieSettings, { Avatar } from "./RhomieSettings";
+import { CheckInButton, CheckInSheet, useCheckIn, timeAgo } from "./RhomieCheckIn";
+import { SOSButton, SOSSheet, IncomingSOSModal, useOwnSOS, useCrewSOS } from "./RhomieSOSAlert";
 
 const C = {
   mint:"#3dd6a3",sky:"#5bbde0",ocean:"#1a3a4a",frost:"#e8f9f4",mist:"#d6f0ff",
@@ -135,7 +135,7 @@ function TeamCard({ member, onLocate, lastCheckIn }) {
   );
 }
 
-export default function RoamieMap({ profile: initialProfile }) {
+export default function RhomieMap({ profile: initialProfile }) {
   const mapRef=useRef(null),mapInstance=useRef(null),markersRef=useRef([]),infoWindowRef=useRef(null);
   const [mapsLoaded,setMapsLoaded]=useState(false);
   const [mapObj,setMapObj]=useState(null);
@@ -347,7 +347,7 @@ export default function RoamieMap({ profile: initialProfile }) {
       {/* TOP BAR */}
       <div style={{position:"absolute",top:0,left:0,right:0,padding:"12px 16px 8px",background:"linear-gradient(to bottom,rgba(255,255,255,0.98) 70%,transparent)",zIndex:10}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
-          <div style={{lineHeight:0.88,fontStyle:"italic",fontSize:18,color:C.ocean,letterSpacing:"-0.5px"}}>roa<br/>mie<span style={{color:C.mint}}>.</span></div>
+          <div style={{lineHeight:0.88,fontStyle:"italic",fontSize:18,color:C.ocean,letterSpacing:"-0.5px"}}>rho<br/>mie<span style={{color:C.mint}}>.</span></div>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
             {userId&&<LocationToggle sharing={sharing} onStart={startSharing} onStop={stopSharing}/>}
             <button onClick={()=>setShowSettings(true)} style={{
@@ -485,7 +485,7 @@ export default function RoamieMap({ profile: initialProfile }) {
 
       {/* SETTINGS */}
       {showSettings&&(
-        <RoamieSettings
+        <RhomieSettings
           profile={profile}
           userId={userId}
           onClose={()=>setShowSettings(false)}
@@ -499,7 +499,7 @@ export default function RoamieMap({ profile: initialProfile }) {
 
       {/* LOADING */}
       {!mapsLoaded&&<div style={{position:"absolute",inset:0,background:C.frost,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",zIndex:50,gap:16}}>
-        <div style={{lineHeight:0.88,textAlign:"center",fontStyle:"italic",fontSize:36,color:C.ocean,letterSpacing:"-1px"}}><div>roa</div><div>mie<span style={{color:C.mint}}>.</span></div></div>
+        <div style={{lineHeight:0.88,textAlign:"center",fontStyle:"italic",fontSize:36,color:C.ocean,letterSpacing:"-1px"}}><div>rho</div><div>mie<span style={{color:C.mint}}>.</span></div></div>
         <div style={{fontSize:14,color:C.gray4}}>Loading your map...</div>
         <div style={{width:40,height:4,background:C.gray2,borderRadius:2,overflow:"hidden"}}><div style={{width:"40%",height:"100%",background:C.mint,borderRadius:2,animation:"loading 1s ease-in-out infinite alternate"}}/></div>
         <style>{`@keyframes loading{from{transform:translateX(0)}to{transform:translateX(150%)}}`}</style>

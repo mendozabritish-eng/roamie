@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
-import { timeAgo } from "./RoamieCheckIn";
+import { timeAgo } from "./RhomieCheckIn";
 
 const C = {
   mint:"#3dd6a3", sky:"#5bbde0", ocean:"#1a3a4a", frost:"#e8f9f4",

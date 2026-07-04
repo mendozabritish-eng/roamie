@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
-import RoamieOnboarding from "./RoamieOnboarding";
-import RoamieSignIn from "./RoamieSignIn";
-import RoamieMap from "./RoamieMap";
-import { AcceptInviteScreen } from "./RoamieInvite";
+import RhomieOnboarding from "./RhomieOnboarding";
+import RhomieSignIn from "./RhomieSignIn";
+import RhomieMap from "./RhomieMap";
+import { AcceptInviteScreen } from "./RhomieInvite";
 
 export default function App() {
   const [screen,  setScreen]  = useState("loading");
@@ -47,13 +47,13 @@ export default function App() {
   if (screen === "loading") return (
     <div style={{height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"#e8f9f4",fontFamily:"'DM Serif Display',serif"}}>
       <div style={{textAlign:"center",lineHeight:0.88,fontStyle:"italic",fontSize:42,color:"#1a3a4a",letterSpacing:"-1px"}}>
-        <div>roa</div><div>mie<span style={{color:"#3dd6a3"}}>.</span></div>
+        <div>rho</div><div>mie<span style={{color:"#3dd6a3"}}>.</span></div>
       </div>
     </div>
   );
 
   if (screen === "signin") return (
-    <RoamieSignIn
+    <RhomieSignIn
       onComplete={(p) => {
         setProfile(p);
         setScreen(inviteCode ? "accept-invite" : "map");
@@ -63,7 +63,7 @@ export default function App() {
   );
 
   if (screen === "onboarding") return (
-    <RoamieOnboarding
+    <RhomieOnboarding
       onComplete={(p) => {
         setProfile(p);
         setScreen(inviteCode ? "accept-invite" : "map");
@@ -84,5 +84,5 @@ export default function App() {
     />
   );
 
-  return <RoamieMap profile={profile} />;
+  return <RhomieMap profile={profile} />;
 }

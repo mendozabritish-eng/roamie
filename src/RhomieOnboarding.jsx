@@ -38,7 +38,7 @@ function MapWatermark({ color = C.ocean, opacity = 0.04 }) {
 }
 
 // ─── Logo ──────────────────────────────────────────────────────────────────
-function RoamieLogo({ size = 48, dark = false }) {
+function RhomieLogo({ size = 48, dark = false }) {
   const color = dark ? C.white : C.ocean;
   const fs = size * 0.38;
   return (
@@ -236,7 +236,7 @@ function CompletionScreen({ profile, onEnter }) {
         You're ready to roam.
       </h2>
       <p style={{ fontSize:15, color:C.gray4, lineHeight:1.6, marginBottom:28 }}>
-        Welcome to Roamie, {profile.firstName}. Your adventure is waiting.
+        Welcome to Rhomie, {profile.firstName}. Your adventure is waiting.
       </p>
       <div style={{ background:C.frost, borderRadius:16, padding:20, border:`1px solid ${C.gray2}`, marginBottom:24, textAlign:"left" }}>
         <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:16 }}>
@@ -269,7 +269,7 @@ function CompletionScreen({ profile, onEnter }) {
           </div>
         )}
       </div>
-      <Btn onClick={onEnter}>Open Roamie 🗺️</Btn>
+      <Btn onClick={onEnter}>Open Rhomie 🗺️</Btn>
     </div>
   );
 }
@@ -288,7 +288,7 @@ function Alert({ message, type="error" }) {
 }
 
 // ─── Main component ────────────────────────────────────────────────────────
-export default function RoamieOnboarding({ onComplete, onSignIn }) {
+export default function RhomieOnboarding({ onComplete, onSignIn }) {
   const [step, setStep]         = useState(0);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState("");
@@ -463,7 +463,7 @@ export default function RoamieOnboarding({ onComplete, onSignIn }) {
         {step === 0 && (
           <div style={{ padding:40, textAlign:"center", position:"relative" }}>
             <div style={{ display:"flex", justifyContent:"center", marginBottom:24 }}>
-              <RoamieLogo size={52} />
+              <RhomieLogo size={52} />
             </div>
             <h1 style={{ fontSize:28, fontStyle:"italic", color:C.ocean, marginBottom:10, lineHeight:1.2 }}>
               Go further.<br/>Stay found.
@@ -472,7 +472,7 @@ export default function RoamieOnboarding({ onComplete, onSignIn }) {
               Your travel companion for solo adventures, road trips, and keeping your people in the loop — anywhere in the world.
             </p>
             <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              <Btn onClick={()=>setStep(1)}>Create your Roamie profile</Btn>
+              <Btn onClick={()=>setStep(1)}>Create your Rhomie profile</Btn>
               <Btn variant="ghost" onClick={onSignIn}>
                 Already have an account? Sign in
               </Btn>
@@ -490,7 +490,7 @@ export default function RoamieOnboarding({ onComplete, onSignIn }) {
           <div style={{ padding:36, position:"relative" }}>
             <div style={{ marginBottom:24 }}><StepDots total={TOTAL_DOTS} current={0}/></div>
             <h2 style={{ fontSize:24, fontStyle:"italic", color:C.ocean, marginBottom:6 }}>Create account</h2>
-            <p style={{ fontSize:14, color:C.gray4, marginBottom:24 }}>Your Roamie starts here.</p>
+            <p style={{ fontSize:14, color:C.gray4, marginBottom:24 }}>Your Rhomie starts here.</p>
             <Alert message={error} />
             <Input label="Email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" icon="✉️" error={fieldErrors.email}/>
             <Input label="Password" type="password" value={password} onChange={setPassword} placeholder="At least 8 characters" icon="🔒" error={fieldErrors.password}/>

@@ -33,7 +33,7 @@ function MapWatermark() {
 }
 
 // ─── Logo ──────────────────────────────────────────────────────────────────
-function RoamieLogo({ size = 48 }) {
+function RhomieLogo({ size = 48 }) {
   const fs = size * 0.38;
   return (
     <div style={{ position:"relative", width:size*1.6, height:size, display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -117,7 +117,7 @@ function Alert({ message, type="error" }) {
 }
 
 // ─── Main component ────────────────────────────────────────────────────────
-export default function RoamieSignIn({ onComplete, onCreateAccount }) {
+export default function RhomieSignIn({ onComplete, onCreateAccount }) {
   const [view, setView]       = useState("signin"); // "signin" | "forgot" | "forgot-sent"
   const [email, setEmail]     = useState("");
   const [password, setPassword] = useState("");
@@ -227,7 +227,7 @@ export default function RoamieSignIn({ onComplete, onCreateAccount }) {
         {view === "signin" && (
           <div style={{ padding:40, position:"relative" }}>
             <div style={{ display:"flex", justifyContent:"center", marginBottom:28 }}>
-              <RoamieLogo size={52} />
+              <RhomieLogo size={52} />
             </div>
             <h2 style={{ fontSize:26, fontStyle:"italic", color:C.ocean, marginBottom:6, textAlign:"center" }}>
               Welcome back.
@@ -263,7 +263,7 @@ export default function RoamieSignIn({ onComplete, onCreateAccount }) {
             </div>
             <Btn onClick={handleSignIn} loading={loading}>Sign in</Btn>
             <div style={{ textAlign:"center", marginTop:20, paddingTop:20, borderTop:`1px solid ${C.gray2}` }}>
-              <span style={{ fontSize:14, color:C.gray4 }}>New to Roamie? </span>
+              <span style={{ fontSize:14, color:C.gray4 }}>New to Rhomie? </span>
               <button
                 onClick={onCreateAccount}
                 style={{ background:"none", border:"none", fontSize:14, color:C.ocean, cursor:"pointer", fontFamily:"inherit", fontWeight:700 }}>
@@ -277,7 +277,7 @@ export default function RoamieSignIn({ onComplete, onCreateAccount }) {
         {view === "forgot" && (
           <div style={{ padding:40, position:"relative" }}>
             <div style={{ display:"flex", justifyContent:"center", marginBottom:28 }}>
-              <RoamieLogo size={52} />
+              <RhomieLogo size={52} />
             </div>
             <h2 style={{ fontSize:26, fontStyle:"italic", color:C.ocean, marginBottom:6, textAlign:"center" }}>
               Reset password

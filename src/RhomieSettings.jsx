@@ -106,7 +106,7 @@ export function Avatar({ url, initials, color, size=40, style={} }) {
   );
 }
 
-export default function RoamieSettings({ profile, userId, onClose, onSave }) {
+export default function RhomieSettings({ profile, userId, onClose, onSave }) {
   const fileInputRef = useRef(null);
   const [loading,      setLoading]      = useState(false);
   const [uploadLoading,setUploadLoading]= useState(false);
@@ -416,10 +416,10 @@ export default function RoamieSettings({ profile, userId, onClose, onSave }) {
         <Divider/>
 
         {/* ── LOCATION PREFS ── */}
-        <SectionHeader title="Location sharing" subtitle="Control when Roamie shares your location"/>
+        <SectionHeader title="Location sharing" subtitle="Control when Rhomie shares your location"/>
         <div style={{padding:"0 20px 16px",display:"flex",flexDirection:"column",gap:8}}>
           {[
-            {key:"ask",    label:"Ask every time",   desc:"Roamie asks before sharing your location",    icon:"❓"},
+            {key:"ask",    label:"Ask every time",   desc:"Rhomie asks before sharing your location",    icon:"❓"},
             {key:"always", label:"Share when active", desc:"Share while the app is open and toggle is on", icon:"📍"},
             {key:"never",  label:"Never share",       desc:"Your location is never visible to anyone",     icon:"🔒"},
           ].map(opt=>(

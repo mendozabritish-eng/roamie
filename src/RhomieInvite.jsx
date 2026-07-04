@@ -104,7 +104,7 @@ export function InviteSheet({ onClose, groupLabel="My Crew", userId }) {
 
   function shareLink() {
     if (navigator.share) {
-      navigator.share({ title: "Join my Roamie crew!", text: `Join my ${groupLabel} on Roamie — a travel safety app. Use my invite link:`, url: inviteLink });
+      navigator.share({ title: "Join my Rhomie crew!", text: `Join my ${groupLabel} on Rhomie — a travel safety app. Use my invite link:`, url: inviteLink });
     } else { copyLink(); }
   }
 
@@ -234,7 +234,7 @@ export function AcceptInviteScreen({ code, userId, onComplete }) {
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 56, marginBottom: 16 }}>🎉</div>
         <h2 style={{ fontSize: 28, fontStyle: "italic", color: C.ocean, marginBottom: 8 }}>You're in!</h2>
-        <p style={{ fontSize: 15, color: C.gray4 }}>You've joined the crew. Opening Roamie...</p>
+        <p style={{ fontSize: 15, color: C.gray4 }}>You've joined the crew. Opening Rhomie...</p>
       </div>
     </div>
   );
@@ -268,7 +268,7 @@ export function AcceptInviteScreen({ code, userId, onComplete }) {
             </>
           )}
           {error && (
-            <Btn onClick={() => window.location.href = "/"} variant="secondary">Go to Roamie</Btn>
+            <Btn onClick={() => window.location.href = "/"} variant="secondary">Go to Rhomie</Btn>
           )}
         </div>
       </div>
