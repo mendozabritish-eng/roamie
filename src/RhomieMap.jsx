@@ -157,6 +157,8 @@ export default function RhomieMap({ profile: initialProfile }) {
   const [newsItems,setNewsItems]=useState([]);
   const [newsLoading,setNewsLoading]=useState(false);
   const [newsError,setNewsError]=useState("");
+  const [newsQuery,setNewsQuery]=useState("");
+  const [searchedLocation,setSearchedLocation]=useState(null);
 
   // Profile state — can be updated from settings
   const [profile,setProfile]=useState(initialProfile);
@@ -272,7 +274,9 @@ export default function RhomieMap({ profile: initialProfile }) {
     if(activeSheet!=="news") return;
     setNewsLoading(true);
     setNewsError("");
-    const params=userLocation?`?lat=${userLocation.lat}&lng=${userLocation.lng}`:"";
+    const params=searchedLocation
+      ? `?q=${encodeURIComponent(searchedLocation)}`
+      : userLocation?`?lat=${userLocation.lat}&lng=${userLocation.lng}`:"";
     fetch(`/api/news${params}`)
       .then(r=>r.json())
       .then(data=>{
@@ -281,7 +285,18 @@ export default function RhomieMap({ profile: initialProfile }) {
       })
       .catch(err=>{ console.error("news fetch failed:",err); setNewsError("Could not load news right now."); })
       .finally(()=>setNewsLoading(false));
-  },[activeSheet,userLocation]);
+  },[activeSheet,userLocation,searchedLocation]);
+
+  function searchNews() {
+    const term=newsQuery.trim();
+    if(!term) return;
+    setSearchedLocation(term);
+  }
+
+  function clearNewsSearch() {
+    setNewsQuery("");
+    setSearchedLocation(null);
+  }
 
   useEffect(()=>{ loadGoogleMaps().then(()=>setMapsLoaded(true)).catch(console.error); },[]);
 
@@ -470,9 +485,34 @@ export default function RhomieMap({ profile: initialProfile }) {
       </BottomSheet>}
 
       {activeSheet==="news"&&<BottomSheet title="Local News Alerts" accent={C.warning} onClose={()=>setActiveSheet(null)}>
+        <div style={{padding:"12px 20px",borderBottom:`1px solid ${C.gray2}`}}>
+          <div style={{display:"flex",gap:8}}>
+            <input
+              value={newsQuery}
+              onChange={e=>setNewsQuery(e.target.value)}
+              onKeyDown={e=>{ if(e.key==="Enter") searchNews(); }}
+              placeholder="Search news for a city or country..."
+              style={{
+                flex:1,border:`1.5px solid ${C.gray2}`,borderRadius:12,
+                padding:"9px 12px",fontSize:13,color:C.ocean,
+                fontFamily:"inherit",outline:"none",
+              }}
+            />
+            <button onClick={searchNews} style={{
+              background:C.warning,border:"none",borderRadius:12,padding:"0 16px",
+              fontSize:13,fontWeight:600,color:C.ocean,cursor:"pointer",fontFamily:"inherit",
+            }}>Search</button>
+          </div>
+          {searchedLocation&&(
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:10}}>
+              <span style={{fontSize:12,color:C.gray4}}>Showing results for <strong style={{color:C.ocean}}>{searchedLocation}</strong></span>
+              <button onClick={clearNewsSearch} style={{background:"none",border:"none",fontSize:12,color:C.sky,cursor:"pointer",fontWeight:600}}>📍 Use my location</button>
+            </div>
+          )}
+        </div>
         {newsLoading&&<div style={{padding:"20px",fontSize:13,color:C.gray3,fontStyle:"italic",textAlign:"center"}}>📰 Loading news...</div>}
         {!newsLoading&&newsError&&<div style={{padding:"20px",fontSize:13,color:C.alert,textAlign:"center"}}>⚠️ {newsError}</div>}
-        {!newsLoading&&!newsError&&newsItems.length===0&&<div style={{padding:"20px",fontSize:13,color:C.gray3,fontStyle:"italic",textAlign:"center"}}>No news found right now.</div>}
+        {!newsLoading&&!newsError&&newsItems.length===0&&<div style={{padding:"20px",fontSize:13,color:C.gray3,fontStyle:"italic",textAlign:"center"}}>{searchedLocation?`No news found for "${searchedLocation}".`:"No news found right now."}</div>}
         {!newsLoading&&!newsError&&newsItems.map(item=>(
           <a key={item.id} href={item.url} target="_blank" rel="noreferrer" style={{textDecoration:"none",display:"block"}}>
             <NewsCard item={{title:item.title,source:item.source,severity:classifyNews(item.title),time:timeAgo(item.publishedAt)}}/>

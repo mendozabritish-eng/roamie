@@ -1,8 +1,12 @@
-// Vercel serverless function: /api/news?lat=..&lng=..
-// Reverse-geocodes the given coordinates to a specific locality (city/town),
-// then searches GNews for news naming that place — both safety-relevant
-// (closures, weather, emergencies) and local happenings (parades, festivals).
-// Falls back to country-wide top headlines if no locality-specific results.
+// Vercel serverless function: /api/news?lat=..&lng=.. OR /api/news?q=<place name>
+// Given coordinates, reverse-geocodes to a specific locality (city/town) and
+// country. Given a manually-typed place name (q), searches globally by name
+// instead (no reliable country code for free text). Either way, searches
+// GNews for news naming that place — both safety-relevant (closures,
+// weather, emergencies) and local happenings (parades, festivals). The GPS
+// path falls back to country-wide top headlines if nothing local is found;
+// the manual-search path does not, so an empty result is shown honestly as
+// "no news found" rather than unrelated country headlines.
 // Keeps GNEWS_API_KEY server-side.
 export default async function handler(req, res) {
   const apiKey = process.env.GNEWS_API_KEY;
@@ -11,11 +15,14 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { lat, lng } = req.query;
-  let country = "us";
+  const { lat, lng, q } = req.query;
+  const manualSearch = !!q?.trim();
+  let country = null;
   let locality = null;
 
-  if (lat && lng) {
+  if (manualSearch) {
+    locality = q.trim();
+  } else if (lat && lng) {
     try {
       const geoRes = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&zoom=10&addressdetails=1`,
@@ -33,16 +40,16 @@ export default async function handler(req, res) {
 
   async function fetchTopHeadlines() {
     const newsRes = await fetch(
-      `https://gnews.io/api/v4/top-headlines?category=general&lang=en&country=${encodeURIComponent(country)}&max=10&apikey=${apiKey}`
+      `https://gnews.io/api/v4/top-headlines?category=general&lang=en&country=${encodeURIComponent(country || "us")}&max=10&apikey=${apiKey}`
     );
     if (!newsRes.ok) throw new Error(`GNews top-headlines ${newsRes.status}`);
     return newsRes.json();
   }
 
-  async function searchGNews(q) {
-    const newsRes = await fetch(
-      `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&country=${encodeURIComponent(country)}&sortby=publishedAt&max=10&apikey=${apiKey}`
-    );
+  async function searchGNews(query) {
+    const params = new URLSearchParams({ q: query, lang: "en", sortby: "publishedAt", max: "10", apikey: apiKey });
+    if (country) params.set("country", country);
+    const newsRes = await fetch(`https://gnews.io/api/v4/search?${params.toString()}`);
     if (!newsRes.ok) throw new Error(`GNews search ${newsRes.status}`);
     return newsRes.json();
   }
@@ -75,7 +82,7 @@ export default async function handler(req, res) {
     }
 
     let articlesSource = merged;
-    if (!articlesSource.length) {
+    if (!articlesSource.length && !manualSearch) {
       const headlines = await fetchTopHeadlines();
       articlesSource = headlines.articles || [];
     }
