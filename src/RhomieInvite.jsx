@@ -186,14 +186,8 @@ export function AcceptInviteScreen({ code, userId, onComplete }) {
   useEffect(() => { lookupInvite(); }, [code]);
 
   async function lookupInvite() {
-    const { data, error } = await supabase
-      .from("invites")
-      .select("*, profiles:created_by(first_name, last_name, group_label)")
-      .eq("code", code)
-      .single();
-    if (error || !data) { setError("This invite link is invalid or has expired."); return; }
-    if (new Date(data.expires_at) < new Date()) { setError("This invite link has expired."); return; }
-    if (data.accepted_by && data.accepted_by !== userId) { setError("This invite has already been used."); return; }
+    const { data, error } = await supabase.rpc("preview_invite", { invite_code: code });
+    if (error || !data) { setError(error?.message || "This invite link is invalid or has expired."); return; }
     setInviteData(data);
   }
 
@@ -202,23 +196,8 @@ export function AcceptInviteScreen({ code, userId, onComplete }) {
     setLoading(true);
     setError("");
     try {
-      // Mark invite as accepted
-      const { error: updateError } = await supabase
-        .from("invites")
-        .update({ accepted_by: userId, accepted_at: new Date().toISOString() })
-        .eq("code", code);
-      if (updateError) throw updateError;
-
-      // Add both directions so each person sees the other in their crew
-      const { error: crewError } = await supabase
-        .from("crew_members")
-        .upsert({ owner_id: inviteData.created_by, member_id: userId });
-      if (crewError) throw crewError;
-
-      const { error: reverseError } = await supabase
-        .from("crew_members")
-        .upsert({ owner_id: userId, member_id: inviteData.created_by });
-      if (reverseError) throw reverseError;
+      const { error: acceptError } = await supabase.rpc("accept_invite", { invite_code: code });
+      if (acceptError) throw acceptError;
 
       setSuccess(true);
       setTimeout(() => onComplete?.(), 2000);
@@ -255,7 +234,7 @@ export function AcceptInviteScreen({ code, userId, onComplete }) {
               <div style={{ textAlign: "center", marginBottom: 24 }}>
                 <div style={{ fontSize: 40, marginBottom: 8 }}>👥</div>
                 <h3 style={{ fontSize: 20, fontStyle: "italic", color: C.ocean, marginBottom: 6 }}>
-                  Join {inviteData.profiles?.first_name}'s {inviteData.profiles?.group_label || "crew"}
+                  Join {inviteData.first_name}'s {inviteData.group_label || "crew"}
                 </h3>
                 <p style={{ fontSize: 13, color: C.gray4, lineHeight: 1.6 }}>
                   You'll be able to see each other's location on the map and stay connected while traveling.
