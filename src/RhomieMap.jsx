@@ -40,12 +40,14 @@ function loadGoogleMaps() {
   });
 }
 
-const MOCK_NEWS = [
-  { id:1, title:"Road closure on I-10 westbound near downtown", severity:"alert", time:"2h ago", source:"Traffic Alert" },
-  { id:2, title:"Tropical storm watch issued for coastal areas", severity:"warning", time:"4h ago", source:"Weather Service" },
-  { id:3, title:"New tourist police booth opens near city center", severity:"info", time:"6h ago", source:"Local News" },
-  { id:4, title:"Festival this weekend — expect crowds downtown", severity:"info", time:"1d ago", source:"City Events" },
-];
+const ALERT_KEYWORDS = /\b(warning|storm|hurricane|earthquake|evacuat|closure|closed|emergency|outbreak|attack)\b/i;
+const CAUTION_KEYWORDS = /\b(watch|advisory|delay|protest|strike|shortage|crowd)\b/i;
+
+function classifyNews(title="") {
+  if (ALERT_KEYWORDS.test(title)) return "alert";
+  if (CAUTION_KEYWORDS.test(title)) return "warning";
+  return "info";
+}
 
 function FilterPill({ label, icon, active, color, onClick }) {
   return (
@@ -150,6 +152,9 @@ export default function RhomieMap({ profile: initialProfile }) {
   const [crewLocations,setCrewLocations]=useState({});
   const [crewCheckIns,setCrewCheckIns]=useState({});
   const [showSettings,setShowSettings]=useState(false);
+  const [newsItems,setNewsItems]=useState([]);
+  const [newsLoading,setNewsLoading]=useState(false);
+  const [newsError,setNewsError]=useState("");
 
   // Profile state — can be updated from settings
   const [profile,setProfile]=useState(initialProfile);
@@ -260,6 +265,21 @@ export default function RhomieMap({ profile: initialProfile }) {
   const { sharing, startSharing, stopSharing } = useRealtimeLocation({
     userId, mapInstance:mapObj, crewMembers, pinColors,
   });
+
+  useEffect(()=>{
+    if(activeSheet!=="news") return;
+    setNewsLoading(true);
+    setNewsError("");
+    const params=userLocation?`?lat=${userLocation.lat}&lng=${userLocation.lng}`:"";
+    fetch(`/api/news${params}`)
+      .then(r=>r.json())
+      .then(data=>{
+        if(data.error){ setNewsError(data.error); setNewsItems([]); return; }
+        setNewsItems(data.articles||[]);
+      })
+      .catch(err=>{ console.error("news fetch failed:",err); setNewsError("Could not load news right now."); })
+      .finally(()=>setNewsLoading(false));
+  },[activeSheet,userLocation]);
 
   useEffect(()=>{ loadGoogleMaps().then(()=>setMapsLoaded(true)).catch(console.error); },[]);
 
@@ -448,8 +468,15 @@ export default function RhomieMap({ profile: initialProfile }) {
       </BottomSheet>}
 
       {activeSheet==="news"&&<BottomSheet title="Local News Alerts" accent={C.warning} onClose={()=>setActiveSheet(null)}>
-        {MOCK_NEWS.map(item=><NewsCard key={item.id} item={item}/>)}
-        <div style={{padding:"12px 20px",fontSize:11,color:C.gray3,fontStyle:"italic",textAlign:"center"}}>News powered by NewsAPI · Updates every 30 min</div>
+        {newsLoading&&<div style={{padding:"20px",fontSize:13,color:C.gray3,fontStyle:"italic",textAlign:"center"}}>📰 Loading news...</div>}
+        {!newsLoading&&newsError&&<div style={{padding:"20px",fontSize:13,color:C.alert,textAlign:"center"}}>⚠️ {newsError}</div>}
+        {!newsLoading&&!newsError&&newsItems.length===0&&<div style={{padding:"20px",fontSize:13,color:C.gray3,fontStyle:"italic",textAlign:"center"}}>No news found right now.</div>}
+        {!newsLoading&&!newsError&&newsItems.map(item=>(
+          <a key={item.id} href={item.url} target="_blank" rel="noreferrer" style={{textDecoration:"none",display:"block"}}>
+            <NewsCard item={{title:item.title,source:item.source,severity:classifyNews(item.title),time:timeAgo(item.publishedAt)}}/>
+          </a>
+        ))}
+        <div style={{padding:"12px 20px",fontSize:11,color:C.gray3,fontStyle:"italic",textAlign:"center"}}>News via GNews</div>
       </BottomSheet>}
 
       {activeSheet==="team"&&<BottomSheet title={groupLabel} accent={C.sky} onClose={()=>setActiveSheet(null)}>
