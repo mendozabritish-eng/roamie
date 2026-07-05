@@ -40,10 +40,12 @@ function loadGoogleMaps() {
   });
 }
 
+const EVENT_KEYWORDS = /\b(parade|festival|carnival|concert|fair|celebration|fireworks)\b/i;
 const ALERT_KEYWORDS = /\b(warning|storm|hurricane|earthquake|evacuat|closure|closed|emergency|outbreak|attack)\b/i;
 const CAUTION_KEYWORDS = /\b(watch|advisory|delay|protest|strike|shortage|crowd)\b/i;
 
 function classifyNews(title="") {
+  if (EVENT_KEYWORDS.test(title)) return "event";
   if (ALERT_KEYWORDS.test(title)) return "alert";
   if (CAUTION_KEYWORDS.test(title)) return "warning";
   return "info";
@@ -97,7 +99,7 @@ function PlaceCard({ place, color, icon, onNavigate }) {
 }
 
 function NewsCard({ item }) {
-  const cfg={alert:{bg:"#fef2f2",color:C.alert,icon:"🚨"},warning:{bg:"#fffbeb",color:C.warning,icon:"⚠️"},info:{bg:C.frost,color:C.sky,icon:"ℹ️"}}[item.severity]||{bg:C.frost,color:C.sky,icon:"📰"};
+  const cfg={alert:{bg:"#fef2f2",color:C.alert,icon:"🚨"},warning:{bg:"#fffbeb",color:C.warning,icon:"⚠️"},event:{bg:C.frost,color:C.mint,icon:"🎉"},info:{bg:C.frost,color:C.sky,icon:"ℹ️"}}[item.severity]||{bg:C.frost,color:C.sky,icon:"📰"};
   return (
     <div style={{padding:"12px 20px",borderBottom:`0.5px solid ${C.gray2}`}}>
       <div style={{display:"flex",gap:8,alignItems:"flex-start"}}>
