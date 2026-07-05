@@ -22,7 +22,10 @@ export function useOwnSOS(userId) {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle()
-      .then(({ data }) => { if (data) setActiveSOS(data); });
+      .then(({ data, error }) => {
+        if (error) console.error("useOwnSOS fetch:", error);
+        if (data) setActiveSOS(data);
+      });
   }, [userId]);
 
   async function sendSOS({ lat, lng, message }) {
@@ -31,18 +34,21 @@ export function useOwnSOS(userId) {
       .insert({ user_id: userId, lat, lng, message })
       .select().single();
     setLoading(false);
-    if (!error) setActiveSOS(data);
-    return !error;
+    if (error) { console.error("sendSOS:", error); return false; }
+    setActiveSOS(data);
+    return true;
   }
 
   async function cancelSOS() {
-    if (!activeSOS) return;
+    if (!activeSOS) return true;
     setLoading(true);
-    await supabase.from("sos_alerts")
+    const { error } = await supabase.from("sos_alerts")
       .update({ resolved_at: new Date().toISOString() })
       .eq("id", activeSOS.id);
     setLoading(false);
+    if (error) { console.error("cancelSOS:", error); return false; }
     setActiveSOS(null);
+    return true;
   }
 
   return { activeSOS, sendSOS, cancelSOS, loading };
@@ -62,7 +68,10 @@ export function useCrewSOS(userId, crewMembers) {
         .select("*")
         .in("user_id", ids)
         .is("resolved_at", null)
-        .then(({ data }) => { if (data?.length) setIncomingSOSes(data); });
+        .then(({ data, error }) => {
+          if (error) console.error("useCrewSOS fetch:", error);
+          if (data?.length) setIncomingSOSes(data);
+        });
     }
 
     const channel = supabase.channel("crew-sos")
@@ -120,28 +129,38 @@ export function SOSSheet({ userId, userLocation, activeSOS, onSend, onCancel, on
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSend() {
     setLoading(true);
-    await onSend({
+    setError("");
+    const ok = await onSend({
       lat: userLocation?.lat ?? null,
       lng: userLocation?.lng ?? null,
       message: message.trim(),
     });
     setLoading(false);
-    onClose();
+    if (ok) onClose();
+    else setError("Could not send SOS. Check your connection and try again.");
   }
 
   async function handleCancel() {
     setLoading(true);
-    await onCancel();
+    setError("");
+    const ok = await onCancel();
     setLoading(false);
-    onClose();
+    if (ok) onClose();
+    else setError("Could not cancel SOS. Your crew may still see it as active — try again.");
   }
 
   // ── Cancel active SOS view ──
   if (activeSOS) return (
     <div style={{ padding:"20px 24px 32px" }}>
+      {error && (
+        <div style={{ background:"#fef2f2", border:"1px solid #fecaca", borderRadius:10, padding:"10px 14px", marginBottom:16, fontSize:13, color:C.alert }}>
+          ⚠️ {error}
+        </div>
+      )}
       <div style={{
         background:"#fef2f2", border:"1px solid #fecaca", borderRadius:14,
         padding:"16px 18px", marginBottom:20, textAlign:"center",
@@ -197,6 +216,11 @@ export function SOSSheet({ userId, userLocation, activeSOS, onSend, onCancel, on
   // ── Send SOS view ──
   return (
     <div style={{ padding:"20px 24px 32px" }}>
+      {error && (
+        <div style={{ background:"#fef2f2", border:"1px solid #fecaca", borderRadius:10, padding:"10px 14px", marginBottom:16, fontSize:13, color:C.alert }}>
+          ⚠️ {error}
+        </div>
+      )}
       <div style={{
         background:"#fef2f2", border:"1px solid #fecaca", borderRadius:14,
         padding:"14px 16px", marginBottom:20,

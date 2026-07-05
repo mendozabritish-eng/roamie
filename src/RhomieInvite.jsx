@@ -317,7 +317,8 @@ export function useRealtimeLocation({ userId, mapInstance, crewMembers, pinColor
     const query = ids.length > 0
       ? supabase.from("locations").select("user_id,lat,lng").in("user_id", ids)
       : supabase.from("locations").select("user_id,lat,lng");
-    query.then(({ data }) => {
+    query.then(({ data, error }) => {
+      if (error) console.error("initial crew locations fetch:", error);
       if (!data) return;
       data.forEach(({ user_id, lat, lng }) => {
         if (user_id === userId) return;

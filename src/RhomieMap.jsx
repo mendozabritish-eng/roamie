@@ -208,7 +208,8 @@ export default function RhomieMap({ profile: initialProfile }) {
 
     supabase.from("check_ins").select("user_id,message,created_at")
       .in("user_id",ids).order("created_at",{ascending:false}).limit(100)
-      .then(({data})=>{
+      .then(({data,error})=>{
+        if(error) console.error("crew check_ins fetch:",error);
         if(!data) return;
         const latest={};
         data.forEach(r=>{ if(!latest[r.user_id]) latest[r.user_id]=r; });
@@ -231,7 +232,8 @@ export default function RhomieMap({ profile: initialProfile }) {
     // Load any locations already being broadcast before we subscribed
     const ids=crewMembers.map(m=>m.id);
     supabase.from("locations").select("user_id,lat,lng,updated_at").in("user_id",ids)
-      .then(({data})=>{
+      .then(({data,error})=>{
+        if(error) console.error("crew locations fetch:",error);
         if(!data) return;
         const locs={};
         data.forEach(r=>{ locs[r.user_id]={lat:r.lat,lng:r.lng,updated_at:r.updated_at}; });
