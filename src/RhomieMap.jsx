@@ -168,20 +168,35 @@ export default function RhomieMap({ profile: initialProfile }) {
   useEffect(()=>{
     if(!userId) return;
     async function fetchCrew() {
-      const { data } = await supabase
+      const { data: members, error: membersError } = await supabase
         .from("crew_members")
-        .select("member_id, profiles:member_id(first_name, last_name, username, avatar_url, avatar_color)")
+        .select("member_id")
         .eq("owner_id", userId);
-      if(data) {
-        setCrewMembers(data.map(d=>({
-          id:d.member_id,
-          name:`${d.profiles?.first_name||""} ${d.profiles?.last_name||""}`.trim()||d.profiles?.username||"Crew member",
-          initials:`${d.profiles?.first_name?.[0]||""}${d.profiles?.last_name?.[0]||""}`.toUpperCase()||"?",
-          avatarUrl:d.profiles?.avatar_url||null,
-          avatarColor:d.profiles?.avatar_color?JSON.parse(d.profiles.avatar_color):null,
-          online:false,
-        })));
+      if(membersError || !members?.length) {
+        if(membersError) console.error("fetchCrew (crew_members):", membersError);
+        setCrewMembers([]);
+        return;
       }
+
+      const ids = members.map(m=>m.member_id);
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("user_id, first_name, last_name, username, avatar_url, avatar_color")
+        .in("user_id", ids);
+      if(profilesError) console.error("fetchCrew (profiles):", profilesError);
+
+      const byId = Object.fromEntries((profiles||[]).map(p=>[p.user_id, p]));
+      setCrewMembers(members.map(m=>{
+        const p = byId[m.member_id];
+        return {
+          id:m.member_id,
+          name:`${p?.first_name||""} ${p?.last_name||""}`.trim()||p?.username||"Crew member",
+          initials:`${p?.first_name?.[0]||""}${p?.last_name?.[0]||""}`.toUpperCase()||"?",
+          avatarUrl:p?.avatar_url||null,
+          avatarColor:p?.avatar_color?JSON.parse(p.avatar_color):null,
+          online:false,
+        };
+      }));
     }
     fetchCrew();
   },[userId]);
