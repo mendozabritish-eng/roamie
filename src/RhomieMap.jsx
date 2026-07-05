@@ -159,6 +159,8 @@ export default function RhomieMap({ profile: initialProfile }) {
   const [newsError,setNewsError]=useState("");
   const [newsQuery,setNewsQuery]=useState("");
   const [searchedLocation,setSearchedLocation]=useState(null);
+  const [newsSuggestions,setNewsSuggestions]=useState([]);
+  const newsAutocompleteRef=useRef(null);
 
   // Profile state — can be updated from settings
   const [profile,setProfile]=useState(initialProfile);
@@ -290,13 +292,45 @@ export default function RhomieMap({ profile: initialProfile }) {
   function searchNews() {
     const term=newsQuery.trim();
     if(!term) return;
+    setNewsSuggestions([]);
     setSearchedLocation(term);
   }
 
   function clearNewsSearch() {
     setNewsQuery("");
     setSearchedLocation(null);
+    setNewsSuggestions([]);
   }
+
+  function selectNewsSuggestion(description) {
+    setNewsQuery(description);
+    setNewsSuggestions([]);
+    setSearchedLocation(description);
+  }
+
+  useEffect(()=>{
+    const term=newsQuery.trim();
+    if(term.length<2||!window.google?.maps?.places){
+      setNewsSuggestions([]);
+      return;
+    }
+    const timer=setTimeout(()=>{
+      if(!newsAutocompleteRef.current){
+        newsAutocompleteRef.current=new window.google.maps.places.AutocompleteService();
+      }
+      newsAutocompleteRef.current.getPlacePredictions(
+        { input:term, types:["(regions)"] },
+        (predictions,status)=>{
+          if(status===window.google.maps.places.PlacesServiceStatus.OK&&predictions){
+            setNewsSuggestions(predictions);
+          } else {
+            setNewsSuggestions([]);
+          }
+        }
+      );
+    },300);
+    return ()=>clearTimeout(timer);
+  },[newsQuery]);
 
   useEffect(()=>{ loadGoogleMaps().then(()=>setMapsLoaded(true)).catch(console.error); },[]);
 
@@ -485,12 +519,13 @@ export default function RhomieMap({ profile: initialProfile }) {
       </BottomSheet>}
 
       {activeSheet==="news"&&<BottomSheet title="Local News Alerts" accent={C.warning} onClose={()=>setActiveSheet(null)}>
-        <div style={{padding:"12px 20px",borderBottom:`1px solid ${C.gray2}`}}>
+        <div style={{padding:"12px 20px",borderBottom:`1px solid ${C.gray2}`,position:"relative"}}>
           <div style={{display:"flex",gap:8}}>
             <input
               value={newsQuery}
               onChange={e=>setNewsQuery(e.target.value)}
               onKeyDown={e=>{ if(e.key==="Enter") searchNews(); }}
+              onBlur={()=>setTimeout(()=>setNewsSuggestions([]),150)}
               placeholder="Search news for a city or country..."
               style={{
                 flex:1,border:`1.5px solid ${C.gray2}`,borderRadius:12,
@@ -503,6 +538,21 @@ export default function RhomieMap({ profile: initialProfile }) {
               fontSize:13,fontWeight:600,color:C.ocean,cursor:"pointer",fontFamily:"inherit",
             }}>Search</button>
           </div>
+          {newsSuggestions.length>0&&(
+            <div style={{
+              position:"absolute",left:20,right:20,top:"100%",marginTop:4,
+              background:C.white,border:`1px solid ${C.gray2}`,borderRadius:12,
+              boxShadow:"0 8px 24px rgba(26,58,74,0.15)",zIndex:30,overflow:"hidden",
+            }}>
+              {newsSuggestions.map(s=>(
+                <button key={s.place_id} onMouseDown={()=>selectNewsSuggestion(s.description)} style={{
+                  display:"block",width:"100%",textAlign:"left",padding:"10px 14px",
+                  border:"none",background:"none",cursor:"pointer",fontFamily:"inherit",
+                  fontSize:13,color:C.ocean,borderBottom:`0.5px solid ${C.gray1}`,
+                }}>📍 {s.description}</button>
+              ))}
+            </div>
+          )}
           {searchedLocation&&(
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginTop:10}}>
               <span style={{fontSize:12,color:C.gray4}}>Showing results for <strong style={{color:C.ocean}}>{searchedLocation}</strong></span>
