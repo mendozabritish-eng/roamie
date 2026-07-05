@@ -52,7 +52,7 @@ function RhomieLogo({ size = 48, dark = false }) {
         <path d="M4 12 Q14 7 26 9 Q34 5 40 7 Q46 5 54 9 Q66 7 76 12 L76 28 Q66 34 54 31 Q46 35 40 33 Q34 35 26 31 Q14 34 4 28 Z" fill={color}/>
       </svg>
       <div style={{ position:"relative", lineHeight:0.88, textAlign:"center", fontFamily:"'DM Serif Display',serif", fontStyle:"italic" }}>
-        <div style={{ fontSize:fs, color, letterSpacing:"-0.5px" }}>roa</div>
+        <div style={{ fontSize:fs, color, letterSpacing:"-0.5px" }}>rho</div>
         <div style={{ fontSize:fs, color, letterSpacing:"-0.5px" }}>mie<span style={{ color:C.mint }}>.</span></div>
       </div>
     </div>

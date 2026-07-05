@@ -223,7 +223,7 @@ export function AcceptInviteScreen({ code, userId, onComplete }) {
       <div style={{ width: "100%", maxWidth: 380, background: C.white, borderRadius: 24, boxShadow: "0 20px 60px rgba(26,58,74,0.12)", overflow: "hidden" }}>
         <div style={{ background: C.ocean, padding: "28px 24px 24px", textAlign: "center" }}>
           <div style={{ lineHeight: 0.88, fontStyle: "italic", fontSize: 32, color: C.white, letterSpacing: "-1px", marginBottom: 12 }}>
-            <div>roa</div><div>mie<span style={{ color: C.mint }}>.</span></div>
+            <div>rho</div><div>mie<span style={{ color: C.mint }}>.</span></div>
           </div>
           <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>You've been invited</div>
         </div>
