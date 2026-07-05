@@ -11,7 +11,7 @@ const C = {
   alert:"#e05555",warning:"#f5c842",success:"#27ae60",peach:"#f0845a",
 };
 
-const GOOGLE_MAPS_API_KEY = "AIzaSyCQfGm3INKGpn4lckg3KaXR8QNw7ahyOw0";
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const DEFAULT_PIN_COLORS = {
   hospital:"#e05555",embassy:"#5bbde0",police:"#3d5afe",

@@ -331,3 +331,114 @@ export default function RhomieSignIn({ onComplete, onCreateAccount }) {
     </div>
   );
 }
+
+// ─── Reset password (landing screen for the recovery email link) ──────────
+export function ResetPasswordScreen({ onComplete }) {
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm]   = useState("");
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [done, setDone]         = useState(false);
+
+  function validate() {
+    const e = {};
+    if (password.length < 6) e.password = "Password must be at least 6 characters";
+    if (confirm !== password) e.confirm = "Passwords don't match";
+    setFieldErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  async function handleReset() {
+    if (!validate()) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) throw updateError;
+      setDone(true);
+      setTimeout(() => onComplete?.(), 1500);
+    } catch (err) {
+      setError(err.message || "Could not reset password. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === "Enter") handleReset();
+  }
+
+  return (
+    <div
+      onKeyDown={handleKeyDown}
+      style={{
+        minHeight:"100vh",
+        background:`linear-gradient(145deg, ${C.frost} 0%, ${C.mist} 50%, #f0fbff 100%)`,
+        display:"flex", alignItems:"center", justifyContent:"center",
+        padding:20, fontFamily:"'DM Serif Display','Georgia',serif",
+      }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+        * { box-sizing: border-box; }
+        input::placeholder { color: #9ab3be; }
+        input { font-family: 'DM Serif Display', Georgia, serif !important; }
+      `}</style>
+
+      <div style={{
+        width:"100%", maxWidth:420,
+        background:C.white, borderRadius:28,
+        boxShadow:"0 20px 60px rgba(26,58,74,0.12)",
+        overflow:"hidden", position:"relative",
+      }}>
+        <MapWatermark />
+
+        <div style={{ padding:40, position:"relative" }}>
+          {done ? (
+            <div style={{ textAlign:"center" }}>
+              <div style={{ fontSize:56, marginBottom:16 }}>✅</div>
+              <h2 style={{ fontSize:26, fontStyle:"italic", color:C.ocean, marginBottom:10 }}>
+                Password updated.
+              </h2>
+              <p style={{ fontSize:14, color:C.gray4 }}>Taking you to your map...</p>
+            </div>
+          ) : (
+            <>
+              <div style={{ display:"flex", justifyContent:"center", marginBottom:28 }}>
+                <RhomieLogo size={52} />
+              </div>
+              <h2 style={{ fontSize:26, fontStyle:"italic", color:C.ocean, marginBottom:6, textAlign:"center" }}>
+                Set a new password
+              </h2>
+              <p style={{ fontSize:14, color:C.gray4, marginBottom:28, textAlign:"center" }}>
+                Choose a new password for your account.
+              </p>
+              <Alert message={error} />
+              <Input
+                label="New password"
+                type="password"
+                value={password}
+                onChange={setPassword}
+                placeholder="At least 6 characters"
+                icon="🔒"
+                error={fieldErrors.password}
+              />
+              <Input
+                label="Confirm password"
+                type="password"
+                value={confirm}
+                onChange={setConfirm}
+                placeholder="Re-enter your password"
+                icon="🔒"
+                error={fieldErrors.confirm}
+              />
+              <Btn onClick={handleReset} loading={loading}>Update password</Btn>
+            </>
+          )}
+        </div>
+
+        <div style={{ height:4, background:`linear-gradient(90deg, ${C.mint}, ${C.sky})`, position:"absolute", bottom:0, left:0, right:0 }}/>
+      </div>
+    </div>
+  );
+}
