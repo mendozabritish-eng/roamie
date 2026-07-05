@@ -41,7 +41,7 @@ function loadGoogleMaps() {
 }
 
 const EVENT_KEYWORDS = /\b(parade|festival|carnival|concert|fair|celebration|fireworks)\b/i;
-const ALERT_KEYWORDS = /\b(warning|storm|hurricane|earthquake|evacuat|closure|closed|emergency|outbreak|attack)\b/i;
+const ALERT_KEYWORDS = /\b(warning|storm|hurricane|earthquake|evacuat|closure|closed|emergency|outbreak|attack|riot|unrest|shooting|curfew|disaster|wildfire|flood|terror|hostage)\b/i;
 const CAUTION_KEYWORDS = /\b(watch|advisory|delay|protest|strike|shortage|crowd)\b/i;
 
 function classifyNews(title="") {

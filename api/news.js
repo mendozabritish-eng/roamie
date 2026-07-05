@@ -39,8 +39,7 @@ export default async function handler(req, res) {
     return newsRes.json();
   }
 
-  async function fetchLocalSearch() {
-    const q = `"${locality}"`;
+  async function searchGNews(q) {
     const newsRes = await fetch(
       `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&country=${encodeURIComponent(country)}&sortby=publishedAt&max=10&apikey=${apiKey}`
     );
@@ -48,20 +47,40 @@ export default async function handler(req, res) {
     return newsRes.json();
   }
 
+  const SAFETY_TERMS = "riot OR unrest OR emergency OR evacuation OR evacuate OR shooting OR curfew OR disaster OR earthquake OR hurricane OR wildfire OR flood OR terror OR \"state of emergency\"";
+
   try {
-    let newsData = { articles: [] };
+    let safetyArticles = [];
+    let localArticles = [];
+
     if (locality) {
-      try {
-        newsData = await fetchLocalSearch();
-      } catch (err) {
-        console.error("GNews local search failed, falling back:", err);
-      }
-    }
-    if (!newsData.articles?.length) {
-      newsData = await fetchTopHeadlines();
+      const [safetyResult, localResult] = await Promise.allSettled([
+        searchGNews(`"${locality}" AND (${SAFETY_TERMS})`),
+        searchGNews(`"${locality}"`),
+      ]);
+      if (safetyResult.status === "fulfilled") safetyArticles = safetyResult.value.articles || [];
+      else console.error("GNews safety search failed:", safetyResult.reason);
+      if (localResult.status === "fulfilled") localArticles = localResult.value.articles || [];
+      else console.error("GNews local search failed:", localResult.reason);
     }
 
-    const articles = (newsData.articles || []).map((a, i) => ({
+    // Merge, putting safety-relevant articles first, deduped by url, capped at 15
+    const seen = new Set();
+    const merged = [];
+    for (const a of [...safetyArticles, ...localArticles]) {
+      if (!a.url || seen.has(a.url)) continue;
+      seen.add(a.url);
+      merged.push(a);
+      if (merged.length >= 15) break;
+    }
+
+    let articlesSource = merged;
+    if (!articlesSource.length) {
+      const headlines = await fetchTopHeadlines();
+      articlesSource = headlines.articles || [];
+    }
+
+    const articles = articlesSource.map((a, i) => ({
       id: i,
       title: a.title,
       source: a.source?.name || "News",
