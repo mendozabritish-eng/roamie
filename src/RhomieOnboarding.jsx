@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "./supabaseClient";
 
 // ─── Brand tokens ──────────────────────────────────────────────────────────
@@ -307,6 +307,15 @@ export default function RhomieOnboarding({ onComplete, onSignIn }) {
   const initials = `${firstName?.[0]??""}${lastName?.[0]??""}`.toUpperCase();
   const TOTAL_DOTS = 4;
 
+  // If we already have a session (e.g. resuming after an interruption between
+  // account creation and finishing the profile), skip straight past the
+  // welcome/signup steps instead of forcing signUp() again with the same email.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setStep(2);
+    });
+  }, []);
+
   function toggleStyle(id) {
     setTravelStyles(prev => prev.includes(id) ? prev.filter(s=>s!==id) : [...prev, id]);
   }
@@ -333,7 +342,14 @@ export default function RhomieOnboarding({ onComplete, onSignIn }) {
     setError("");
     try {
       const { error: signUpError } = await supabase.auth.signUp({ email, password });
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        // If a session already exists (re-submitting this step after going
+        // back, or the account was already created in a prior attempt), the
+        // account exists and is usable — just continue instead of failing.
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) { setStep(2); return; }
+        throw signUpError;
+      }
       setStep(2);
     } catch (err) {
       setError(err.message || "Something went wrong. Please try again.");
