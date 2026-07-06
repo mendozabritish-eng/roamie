@@ -142,7 +142,7 @@ export default function RhomieSignIn({ onComplete, onCreateAccount }) {
       if (signInError) throw signInError;
 
       const { data: { user } } = await supabase.auth.getUser();
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("user_id", user.id)
@@ -156,6 +156,11 @@ export default function RhomieSignIn({ onComplete, onCreateAccount }) {
           groupLabel: profile.group_label || "My Crew",
           locationPref: profile.location_pref || "ask",
         });
+      } else if (profileError && profileError.code !== "PGRST116") {
+        // A real fetch error, not just "no profile row yet" — don't guess.
+        // Treating this as a new user could overwrite an existing profile
+        // once onboarding's upsert runs.
+        throw profileError;
       } else {
         // Signed in but no profile — send to onboarding to finish setup
         onCreateAccount?.();

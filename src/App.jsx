@@ -13,7 +13,7 @@ export default function App() {
 
   async function enterApp(session, code) {
     setUserId(session.user.id);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("user_id", session.user.id)
@@ -28,6 +28,12 @@ export default function App() {
       });
       // If there's an invite code and user is logged in, show accept screen
       setScreen(code ? "accept-invite" : "map");
+    } else if (error && error.code !== "PGRST116") {
+      // A real fetch error, not just "no profile row yet" — don't guess.
+      // Treating this as a new user could overwrite an existing profile
+      // once onboarding's upsert runs.
+      console.error("profile fetch failed:", error);
+      setScreen("signin");
     } else {
       setScreen("onboarding");
     }
