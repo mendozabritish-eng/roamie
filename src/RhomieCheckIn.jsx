@@ -39,7 +39,10 @@ export function useCheckIn(userId) {
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle()
-      .then(({ data }) => { if (data) setLastCheckIn(data); });
+      .then(({ data, error }) => {
+        if (error) console.error("useCheckIn fetch:", error);
+        if (data) setLastCheckIn(data);
+      });
 
     const channel = supabase.channel("own-check-ins")
       .on("postgres_changes", {
