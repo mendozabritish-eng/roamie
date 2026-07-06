@@ -389,7 +389,14 @@ export default function RhomieOnboarding({ onComplete, onSignIn }) {
         group_label:  groupLabel,
       });
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        if (profileError.code === "23505") {
+          setFieldErrors({ username: "That username is already taken" });
+          setLoading(false);
+          return;
+        }
+        throw profileError;
+      }
       setStep(3);
     } catch (err) {
       setError(err.message || "Could not save profile. Please try again.");

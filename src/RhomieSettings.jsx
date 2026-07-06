@@ -230,7 +230,14 @@ export default function RhomieSettings({ profile, userId, onClose, onSave }) {
         location_pref: locationPref,
       }).eq("user_id", userId);
 
-      if (updateError) throw updateError;
+      if (updateError) {
+        if (updateError.code === "23505") {
+          setError("That username is already taken.");
+          setLoading(false);
+          return;
+        }
+        throw updateError;
+      }
 
       setSuccess("Settings saved!");
       setTimeout(()=>setSuccess(""), 3000);
