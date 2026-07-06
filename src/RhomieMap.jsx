@@ -319,7 +319,7 @@ export default function RhomieMap({ profile: initialProfile }) {
         newsAutocompleteRef.current=new window.google.maps.places.AutocompleteService();
       }
       newsAutocompleteRef.current.getPlacePredictions(
-        { input:term, types:["(regions)"] },
+        { input:term },
         (predictions,status)=>{
           if(status===window.google.maps.places.PlacesServiceStatus.OK&&predictions){
             setNewsSuggestions(predictions);
