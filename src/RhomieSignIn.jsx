@@ -154,6 +154,7 @@ export default function RhomieSignIn({ onComplete, onCreateAccount }) {
           lastName:   profile.last_name,
           username:   profile.username,
           groupLabel: profile.group_label || "My Crew",
+          locationPref: profile.location_pref || "ask",
         });
       } else {
         // Signed in but no profile — send to onboarding to finish setup

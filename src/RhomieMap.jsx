@@ -273,6 +273,12 @@ export default function RhomieMap({ profile: initialProfile }) {
   });
 
   useEffect(()=>{
+    if(profile?.locationPref==="always"&&userId&&mapObj&&!sharing){
+      startSharing();
+    }
+  },[profile?.locationPref,userId,mapObj]);
+
+  useEffect(()=>{
     if(activeSheet!=="news") return;
     setNewsLoading(true);
     setNewsError("");
@@ -437,7 +443,7 @@ export default function RhomieMap({ profile: initialProfile }) {
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
           <div style={{lineHeight:0.88,fontStyle:"italic",fontSize:18,color:C.ocean,letterSpacing:"-0.5px"}}>rho<br/>mie<span style={{color:C.mint}}>.</span></div>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
-            {userId&&<LocationToggle sharing={sharing} onStart={startSharing} onStop={stopSharing}/>}
+            {userId&&profile?.locationPref!=="never"&&<LocationToggle sharing={sharing} onStart={startSharing} onStop={stopSharing}/>}
             <button onClick={()=>setShowSettings(true)} style={{
               width:34,height:34,borderRadius:"50%",
               background:C.gray1,border:`1px solid ${C.gray2}`,

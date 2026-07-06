@@ -24,6 +24,7 @@ export default function App() {
         lastName:   data.last_name,
         username:   data.username,
         groupLabel: data.group_label || "My Crew",
+        locationPref: data.location_pref || "ask",
       });
       // If there's an invite code and user is logged in, show accept screen
       setScreen(code ? "accept-invite" : "map");

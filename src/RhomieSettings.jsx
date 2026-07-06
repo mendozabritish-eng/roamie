@@ -119,7 +119,7 @@ export default function RhomieSettings({ profile, userId, onClose, onSave }) {
   const [groupLabel,   setGroupLabel]   = useState(profile?.groupLabel||"My Crew");
   const [avatarColor,  setAvatarColor]  = useState(profile?.avatarColor||AVATAR_COLORS[0]);
   const [avatarUrl,    setAvatarUrl]    = useState(profile?.avatarUrl||null);
-  const [locationPref, setLocationPref] = useState("ask");
+  const [locationPref, setLocationPref] = useState(profile?.locationPref||"ask");
   const [activePinKey, setActivePinKey] = useState(null);
   const [pinColors,    setPinColors]    = useState(()=>{
     try { return profile?.pinColors?JSON.parse(profile.pinColors):{} } catch { return {}; }
@@ -227,6 +227,7 @@ export default function RhomieSettings({ profile, userId, onClose, onSave }) {
         group_label:  groupLabel,
         avatar_color: JSON.stringify(avatarColor),
         pin_colors:   JSON.stringify(pinColors),
+        location_pref: locationPref,
       }).eq("user_id", userId);
 
       if (updateError) throw updateError;
@@ -239,7 +240,7 @@ export default function RhomieSettings({ profile, userId, onClose, onSave }) {
         lastName:lastName.trim(),
         username:username.toLowerCase().trim(),
         groupLabel,avatarColor,pinColors,
-        avatarUrl,
+        avatarUrl,locationPref,
       });
     } catch (err) {
       setError(err.message||"Could not save settings.");
