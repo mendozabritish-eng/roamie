@@ -66,12 +66,13 @@ function Input({ label, type="text", value, onChange, placeholder, icon, error }
         background: focused ? C.frost : C.white,
         transition:"all 0.2s",
         boxShadow: focused ? `0 0 0 3px ${C.mint}22` : "none",
+        minWidth:0,
       }}>
         {icon && <span style={{ fontSize:18, flexShrink:0 }}>{icon}</span>}
         <input type={type} value={value} onChange={e=>onChange(e.target.value)}
           placeholder={placeholder}
           onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)}
-          style={{ flex:1, border:"none", outline:"none", fontSize:15, color:C.ocean, background:"transparent", fontFamily:"inherit" }}
+          style={{ flex:1, minWidth:0, border:"none", outline:"none", fontSize:15, color:C.ocean, background:"transparent", fontFamily:"inherit" }}
         />
       </div>
       {error && <p style={{ fontSize:12, color:C.alert, marginTop:4 }}>{error}</p>}

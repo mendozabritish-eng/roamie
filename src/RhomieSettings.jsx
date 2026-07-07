@@ -345,12 +345,12 @@ export default function RhomieSettings({ profile, userId, onClose, onSave }) {
 
         {/* ── PROFILE INFO ── */}
         <SectionHeader title="Your profile" subtitle="How your crew sees you"/>
-        <div style={{padding:"0 20px",display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+        <div style={{padding:"0 20px",display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)",gap:12,marginBottom:12}}>
           {[["First name",firstName,setFirstName,"First"],["Last name",lastName,setLastName,"Last"]].map(([label,val,set,ph])=>(
-            <div key={label}>
+            <div key={label} style={{minWidth:0}}>
               <label style={{display:"block",fontSize:11,fontWeight:600,color:C.ocean,marginBottom:5,textTransform:"uppercase",letterSpacing:"0.3px"}}>{label}</label>
               <input value={val} onChange={e=>set(e.target.value)} placeholder={ph}
-                style={{width:"100%",padding:"10px 12px",borderRadius:10,border:`1.5px solid ${C.gray2}`,fontSize:14,color:C.ocean,outline:"none",background:C.frost}}/>
+                style={{width:"100%",minWidth:0,padding:"10px 12px",borderRadius:10,border:`1.5px solid ${C.gray2}`,fontSize:14,color:C.ocean,outline:"none",background:C.frost,boxSizing:"border-box"}}/>
             </div>
           ))}
         </div>
