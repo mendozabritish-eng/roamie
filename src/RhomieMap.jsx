@@ -100,13 +100,17 @@ function PlaceCard({ place, color, icon, onNavigate }) {
 
 function NewsCard({ item }) {
   const cfg={alert:{bg:"#fef2f2",color:C.alert,icon:"🚨"},warning:{bg:"#fffbeb",color:C.warning,icon:"⚠️"},event:{bg:C.frost,color:C.mint,icon:"🎉"},info:{bg:C.frost,color:C.sky,icon:"ℹ️"}}[item.severity]||{bg:C.frost,color:C.sky,icon:"📰"};
+  const showLang = item.lang && item.lang !== "en";
   return (
     <div style={{padding:"12px 20px",borderBottom:`0.5px solid ${C.gray2}`}}>
       <div style={{display:"flex",gap:8,alignItems:"flex-start"}}>
         <span style={{fontSize:16,flexShrink:0,marginTop:1}}>{cfg.icon}</span>
         <div>
           <div style={{fontSize:13,fontWeight:500,color:C.ocean,lineHeight:1.4}}>{item.title}</div>
-          <div style={{fontSize:11,color:C.gray4,marginTop:4}}>{item.source} · {item.time}</div>
+          <div style={{fontSize:11,color:C.gray4,marginTop:4,display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+            <span>{item.source} · {item.time}</span>
+            {showLang&&<span style={{fontSize:9,fontWeight:700,letterSpacing:"0.5px",color:C.gray4,background:C.gray1,border:`1px solid ${C.gray2}`,borderRadius:4,padding:"1px 5px",textTransform:"uppercase"}}>{item.lang}</span>}
+          </div>
         </div>
       </div>
     </div>
@@ -576,7 +580,7 @@ export default function RhomieMap({ profile: initialProfile }) {
         {!newsLoading&&!newsError&&newsItems.length===0&&<div style={{padding:"20px",fontSize:13,color:C.gray3,fontStyle:"italic",textAlign:"center"}}>{searchedLocation?`No news found for "${searchedLocation}".`:"No news found right now."}</div>}
         {!newsLoading&&!newsError&&newsItems.map(item=>(
           <a key={item.id} href={item.url} target="_blank" rel="noreferrer" style={{textDecoration:"none",display:"block"}}>
-            <NewsCard item={{title:item.title,source:item.source,severity:classifyNews(item.title),time:timeAgo(item.publishedAt)}}/>
+            <NewsCard item={{title:item.title,source:item.source,severity:classifyNews(item.title),time:timeAgo(item.publishedAt),lang:item.lang}}/>
           </a>
         ))}
         <div style={{padding:"12px 20px",fontSize:11,color:C.gray3,fontStyle:"italic",textAlign:"center"}}>News via GNews</div>
