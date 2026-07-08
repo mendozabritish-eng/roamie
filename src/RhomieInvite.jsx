@@ -54,6 +54,12 @@ function Alert({ message, type="error" }) {
 
 // ─── Invite sheet ──────────────────────────────────────────────────────────
 export function InviteSheet({ onClose, groupLabel="My Crew", userId }) {
+  // Labels like "My Crew" already carry a possessive, so "your My Crew" or
+  // "my My Crew" would double up — drop the leading possessive in that case.
+  const groupHasOwnPossessive = /^my\b/i.test(groupLabel.trim());
+  const groupJoinText = groupHasOwnPossessive ? groupLabel : `your ${groupLabel}`;
+  const groupShareText = groupHasOwnPossessive ? groupLabel : `my ${groupLabel}`;
+
   const [inviteCode,   setInviteCode]   = useState(null);
   const [inviteLink,   setInviteLink]   = useState(null);
   const [loading,      setLoading]      = useState(false);
@@ -104,7 +110,7 @@ export function InviteSheet({ onClose, groupLabel="My Crew", userId }) {
 
   function shareLink() {
     if (navigator.share) {
-      navigator.share({ title: "Join my Rhomie crew!", text: `Join my ${groupLabel} on Rhomie — a travel safety app. Use my invite link:`, url: inviteLink });
+      navigator.share({ title: "Join my Rhomie crew!", text: `Join ${groupShareText} on Rhomie — a travel safety app. Use my invite link:`, url: inviteLink });
     } else { copyLink(); }
   }
 
@@ -115,7 +121,7 @@ export function InviteSheet({ onClose, groupLabel="My Crew", userId }) {
       {/* Generate section */}
       <div style={{ padding: "16px 20px", borderBottom: `1px solid ${C.gray2}` }}>
         <p style={{ fontSize: 13, color: C.gray4, marginBottom: 14, lineHeight: 1.6 }}>
-          Generate a private invite link. Anyone with this link can join your <strong style={{ color: C.ocean }}>{groupLabel}</strong> and see your location on the map.
+          Generate a private invite link. Anyone with this link can join <strong style={{ color: C.ocean }}>{groupJoinText}</strong> and see your location on the map.
         </p>
         <Btn onClick={generateInvite} loading={loading}>
           ✨ Generate invite link

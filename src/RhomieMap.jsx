@@ -165,6 +165,11 @@ export default function RhomieMap({ profile: initialProfile }) {
   // Profile state — can be updated from settings
   const [profile,setProfile]=useState(initialProfile);
   const groupLabel = profile?.groupLabel || "My Crew";
+  // Labels like "My Crew" already carry a possessive, so "Your my crew" would
+  // double up — drop the leading "your"/"to your" in that case instead.
+  const groupHasOwnPossessive = /^my\b/i.test(groupLabel.trim());
+  const groupEmptyText = groupHasOwnPossessive ? `${groupLabel} is empty.` : `Your ${groupLabel.toLowerCase()} is empty.`;
+  const groupInviteText = groupHasOwnPossessive ? `Invite someone to ${groupLabel.toLowerCase()}` : `Invite someone to your ${groupLabel.toLowerCase()}`;
 
   const { lastCheckIn } = useCheckIn(userId);
   const { activeSOS, sendSOS, cancelSOS } = useOwnSOS(userId);
@@ -581,7 +586,7 @@ export default function RhomieMap({ profile: initialProfile }) {
         {enrichedCrew.length===0?(
           <div style={{padding:"24px 20px",textAlign:"center"}}>
             <div style={{fontSize:32,marginBottom:8}}>👥</div>
-            <div style={{fontSize:13,color:C.gray4,marginBottom:4}}>Your {groupLabel.toLowerCase()} is empty.</div>
+            <div style={{fontSize:13,color:C.gray4,marginBottom:4}}>{groupEmptyText}</div>
             <div style={{fontSize:12,color:C.gray3}}>Invite someone to get started.</div>
           </div>
         ):(
@@ -594,7 +599,7 @@ export default function RhomieMap({ profile: initialProfile }) {
             fontSize:13,color:"#185fa5",cursor:"pointer",fontFamily:"inherit",
             display:"flex",alignItems:"center",justifyContent:"center",gap:6,fontWeight:600,
           }}>
-            ✉️ Invite someone to your {groupLabel.toLowerCase()}
+            ✉️ {groupInviteText}
           </button>
         </div>
       </BottomSheet>}
