@@ -1,0 +1,16 @@
+{
+  "name": "Rhomie",
+  "short_name": "Rhomie",
+  "description": "Your travel companion — safe havens, check-ins, local news, and your crew, anywhere in the world.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a3a4a",
+  "theme_color": "#1a3a4a",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
